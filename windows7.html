@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Windows 7 Simulator</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+* { box-sizing: border-box; font-family: "Segoe UI", sans-serif; user-select: none; }
+
+body {
+  margin: 0;
+  overflow: hidden;
+  background: url("https://i.imgur.com/9QZ7ZQp.jpg") center/cover no-repeat;
+}
+
+
+#desktop {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+}
+
+
+#taskbar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 48px;
+  background: linear-gradient(#1f1f1f, #000);
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+}
+
+
+#start-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: radial-gradient(circle at top, #5cc7ff, #004a7f);
+  cursor: pointer;
+}
+
+
+#clock {
+  margin-left: auto;
+  color: white;
+  font-size: 14px;
+}
+
+
+#start-menu {
+  position: fixed;
+  bottom: 48px;
+  left: 10px;
+  width: 320px;
+  height: 420px;
+  background: rgba(30,30,30,0.95);
+  backdrop-filter: blur(15px);
+  border-radius: 8px;
+  color: white;
+  padding: 10px;
+  display: none;
+}
+
+
+.window {
+  position: absolute;
+  top: 80px;
+  left: 80px;
+  width: 320px;
+  height: 220px;
+  background: rgba(255,255,255,0.18);
+  backdrop-filter: blur(18px);
+  border-radius: 8px;
+  box-shadow: 0 0 25px rgba(0,0,0,.6);
+  color: white;
+}
+
+
+.titlebar {
+  height: 32px;
+  background: rgba(0,0,0,.4);
+  padding: 5px 10px;
+  cursor: move;
+}
+
+
+@media (max-width: 768px) {
+  #start-menu {
+    width: 100vw;
+    height: 100vh;
+    left: 0;
+    bottom: 0;
+    border-radius: 0;
+  }
+
+  .window {
+    width: 95vw;
+    height: 85vh;
+    left: 2.5vw;
+    top: 5vh;
+  }
+
+  #taskbar {
+    height: 56px;
+  }
+}
+</style>
+</head>
+
+<body>
+<div id="desktop">
+
+  <div class="window" id="explorer">
+    <div class="titlebar">Explorador de Arquivos</div>
+    <div style="padding:10px">Computador<br>Disco Local (C:)<br>Usuários</div>
+  </div>
+
+  <div id="start-menu">
+    <h3>Menu Iniciar</h3>
+    <p>Programas</p>
+    <p>Documentos</p>
+    <p>Painel de Controle</p>
+    <p>Desligar</p>
+  </div>
+
+  <div id="taskbar">
+    <div id="start-btn"></div>
+    <div id="clock"></div>
+  </div>
+</div>
+
+
+<audio id="startup" src="https://assets.mixkit.co/sfx/preview/mixkit-game-level-completed-2059.mp3"></audio>
+<audio id="click" src="https://assets.mixkit.co/sfx/preview/mixkit-mouse-click-close-1113.mp3"></audio>
+
+<script>
+const startBtn = document.getElementById("start-btn");
+const startMenu = document.getElementById("start-menu");
+const clickSound = document.getElementById("click");
+const startupSound = document.getElementById("startup");
+
+
+setInterval(() => {
+  const d = new Date();
+  document.getElementById("clock").innerText =
+    d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+}, 1000);
+
+
+startBtn.onclick = () => {
+  clickSound.play();
+  startMenu.style.display =
+    startMenu.style.display === "block" ? "none" : "block";
+};
+
+// STARTUP SOUND (after first touch)
+document.body.addEventListener("click", () => {
+  startupSound.play();
+}, { once: true });
+
+// DRAG WINDOW (mouse + touch)
+const win = document.getElementById("explorer");
+const bar = win.querySelector(".titlebar");
+let dragging = false, offsetX, offsetY;
+
+bar.addEventListener("mousedown", e => {
+  dragging = true;
+  offsetX = e.offsetX;
+  offsetY = e.offsetY;
+});
+
+document.addEventListener("mousemove", e => {
+  if (!dragging) return;
+  win.style.left = e.pageX - offsetX + "px";
+  win.style.top = e.pageY - offsetY + "px";
+});
+
+document.addEventListener("mouseup", () => dragging = false);
+
+
+bar.addEventListener("touchstart", e => {
+  offsetX = e.touches[0].clientX - win.offsetLeft;
+  offsetY = e.touches[0].clientY - win.offsetTop;
+});
+
+bar.addEventListener("touchmove", e => {
+  win.style.left = e.touches[0].clientX - offsetX + "px";
+  win.style.top = e.touches[0].clientY - offsetY + "px";
+});
+</script>
+</body>
+</html>
